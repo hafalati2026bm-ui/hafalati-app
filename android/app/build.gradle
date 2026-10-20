@@ -1,0 +1,25 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+android {
+    namespace = "com.hafalati.wedding"
+    compileSdk = 34
+    ndkVersion = "26.3.11579264"
+    defaultConfig {
+        applicationId = "com.hafalati.wedding"
+        minSdk = 21
+        targetSdk = 34
+        versionCode = 79
+        versionName = "2.26.39.79"
+    }
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug
+        }
+    }
+}
+flutter {
+    source = "../.."
+}
