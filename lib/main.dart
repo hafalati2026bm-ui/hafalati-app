@@ -1,4 +1,4 @@
-rt 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   runApp(const HafalatiApp());
@@ -6,75 +6,207 @@ void main() {
 
 class HafalatiApp extends StatelessWidget {
   const HafalatiApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HAFALATI',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: const Color(0xFF8B4513),
-        scaffoldBackgroundColor: const Color(0xFFFFF8F0),
-      ),
-      home: const HomePage(),
+      title: 'HAFALATI',
+      theme: ThemeData(scaffoldBackgroundColor: Colors.black),
+      home: const GoldHome(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class GoldHome extends StatelessWidget {
+  const GoldHome({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      {'name': 'نگافات', 'icon': '👰', 'color': Color(0xFFFF6B9D)},
-      {'name': 'فرق موسيقية', 'icon': '🎵', 'color': Color(0xFF4ECDC4)},
-      {'name': 'قاعات', 'icon': '🏛️', 'color': Color(0xFFFFE66D)},
-      {'name': 'مصورين', 'icon': '📸', 'color': Color(0xFF6C5CE7)},
-      {'name': 'حلويات', 'icon': '🎂', 'color': Color(0xFFA29BFE)},
-      {'name': 'ديكور', 'icon': '💐', 'color': Color(0xFFFF7675)},
-    ];
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('HAFALATI - حفلاتي', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        backgroundColor: Color(0xFF8B4513),
-        centerTitle: true,
+        backgroundColor: Colors.black,
+        title: const Text('HAFALATI', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings, color: Color(0xFFD4AF37)),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage()));
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF121212),
+              border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('مرحبا، فاطمة', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 22, fontWeight: FontWeight.bold)),
+                Text('جاهزة ليومك المميز؟', style: TextStyle(color: Colors.white70)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text('الأوركسترات - اضغطي للدخول', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          orchestraCard(context, 'أوركسترا سفيان', 'بني ملال', '10,000'),
+          orchestraCard(context, 'أوركسترا نجوم الأطلس', 'خريبكة', '12,000'),
+          orchestraCard(context, 'أوركسترا مراكش', 'مراكش', '15,000'),
+        ],
+      ),
+    );
+  }
+
+  Widget orchestraCard(BuildContext context, String name, String city, String price) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(name: name, price: price)));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1C1C1C),
+          border: Border.all(color: const Color(0xFFD4AF37)),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.music_note, color: Color(0xFFD4AF37)),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                Text('$city • $price DH', style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              ],
+            ),
+            const Spacer(),
+            const Icon(Icons.arrow_forward_ios, color: Color(0xFFD4AF37), size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DetailPage extends StatelessWidget {
+  final String name;
+  final String price;
+  const DetailPage({super.key, required this.name, required this.price});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black, title: Text(name, style: const TextStyle(color: Color(0xFFD4AF37)))),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Color(0xFF8B4513), borderRadius: BorderRadius.circular(15)),
+              height: 180,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1A1A1A),
+                border: Border.all(color: const Color(0xFFD4AF37)),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(child: Icon(Icons.play_circle_fill, size: 70, color: Color(0xFFD4AF37))),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF121212),
+                border: Border.all(color: const Color(0xFFD4AF37)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('مرحبا بيك فـ حفلاتي', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  Text('سوق الاعراس - كلشي ديال العرس فبلاصة وحدة', style: TextStyle(color: Colors.white70, fontSize: 14), textAlign: TextAlign.center),
+                  const Text('الباقة الذهبية', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
+                  Text('$price درهم', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: 1.2),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  decoration: BoxDecoration(color: categories[index]['color'] as Color, borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(categories[index]['icon'] as String, style: TextStyle(fontSize: 40)),
-                      SizedBox(height: 8),
-                      Text(categories[index]['name'] as String, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                    ],
-                  ),
-                );
-              },
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37), padding: const EdgeInsets.symmetric(vertical: 16)),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => CartPage(price: price)));
+                },
+                child: const Text('احجزي - Pay with Coins', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class CartPage extends StatelessWidget {
+  final String price;
+  const CartPage({super.key, required this.price});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black, title: const Text('سلة التسوق', style: TextStyle(color: Color(0xFFD4AF37)))),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Text('المجموع: $price DH', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 24)),
+            const Spacer(),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37), minimumSize: const Size(double.infinity, 50)),
+              onPressed: () {},
+              child: const Text('إتمام الحجز', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AdminPage extends StatelessWidget {
+  const AdminPage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black, title: const Text('لوحة تحكم الأدمن', style: TextStyle(color: Color(0xFFD4AF37)))),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Color(0xFFD4AF37), Color(0xFFB8960C)]),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Admin: hafalati2026.bm@gmail.com', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                Text('رصيد الضمان: 125,420 DH', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
