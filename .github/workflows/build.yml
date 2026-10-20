@@ -8,9 +8,16 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - name: Fix Android folder
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --org com.hafalati --project-name hafalati
+      - name: Get packages
+        run: flutter pub get
+      - name: Build APK
+        run: flutter build apk --debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
