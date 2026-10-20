@@ -1,213 +1,53 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const HafalatiApp());
-}
-
-class HafalatiApp extends StatelessWidget {
-  const HafalatiApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'HAFALATI',
-      theme: ThemeData(scaffoldBackgroundColor: Colors.black),
-      home: const GoldHome(),
-    );
-  }
-}
-
-class GoldHome extends StatelessWidget {
-  const GoldHome({super.key});
-
+void main() => runApp(MaterialApp(debugShowCheckedModeBanner:false, home: Home()));
+class Home extends StatefulWidget { @override _HomeState createState() => _HomeState(); }
+class _HomeState extends State<Home> {
+  int i=2; final gold=Color(0xFFD4AF37);
+  String price='5,000'; String solo='10,000'; String chikhat='20,000';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: const Text('HAFALATI', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.admin_panel_settings, color: Color(0xFFD4AF37)),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPage()));
-            },
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF121212),
-              border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('مرحبا، فاطمة', style: TextStyle(color: Color(0xFFD4AF37), fontSize: 22, fontWeight: FontWeight.bold)),
-                Text('جاهزة ليومك المميز؟', style: TextStyle(color: Colors.white70)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text('الأوركسترات - اضغطي للدخول', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          orchestraCard(context, 'أوركسترا سفيان', 'بني ملال', '10,000'),
-          orchestraCard(context, 'أوركسترا نجوم الأطلس', 'خريبكة', '12,000'),
-          orchestraCard(context, 'أوركسترا مراكش', 'مراكش', '15,000'),
-        ],
-      ),
+      backgroundColor: Color(0xFF0F0F0F),
+      body: i==0 ? clientView() : i==1 ? bandView() : adminView(),
+      bottomNavigationBar: BottomNavigationBar(backgroundColor: Color(0xFF0F0F0F), selectedItemColor: gold, unselectedItemColor: Colors.white38, currentIndex: i, onTap: (v)=> setState(()=> i=v), items: [
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'زبون'),
+        BottomNavigationBarItem(icon: Icon(Icons.music_note), label: 'فرقة'),
+        BottomNavigationBarItem(icon: Icon(Icons.admin_panel_settings), label: 'أنا الأدمن'),
+      ]),
     );
   }
-
-  Widget orchestraCard(BuildContext context, String name, String city, String price) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(name: name, price: price)));
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1C1C1C),
-          border: Border.all(color: const Color(0xFFD4AF37)),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.music_note, color: Color(0xFFD4AF37)),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text('$city • $price DH', style: const TextStyle(color: Colors.white54, fontSize: 12)),
-              ],
-            ),
-            const Spacer(),
-            const Icon(Icons.arrow_forward_ios, color: Color(0xFFD4AF37), size: 14),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DetailPage extends StatelessWidget {
-  final String name;
-  final String price;
-  const DetailPage({super.key, required this.name, required this.price});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black, title: Text(name, style: const TextStyle(color: Color(0xFFD4AF37)))),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
-                border: Border.all(color: const Color(0xFFD4AF37)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(child: Icon(Icons.play_circle_fill, size: 70, color: Color(0xFFD4AF37))),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF121212),
-                border: Border.all(color: const Color(0xFFD4AF37)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('الباقة الذهبية', style: TextStyle(color: Color(0xFFD4AF37), fontWeight: FontWeight.bold)),
-                  Text('$price درهم', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37), padding: const EdgeInsets.symmetric(vertical: 16)),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => CartPage(price: price)));
-                },
-                child: const Text('احجزي - Pay with Coins', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CartPage extends StatelessWidget {
-  final String price;
-  const CartPage({super.key, required this.price});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black, title: const Text('سلة التسوق', style: TextStyle(color: Color(0xFFD4AF37)))),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text('المجموع: $price DH', style: const TextStyle(color: Color(0xFFD4AF37), fontSize: 24)),
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD4AF37), minimumSize: const Size(double.infinity, 50)),
-              onPressed: () {},
-              child: const Text('إتمام الحجز', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AdminPage extends StatelessWidget {
-  const AdminPage({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black, title: const Text('لوحة تحكم الأدمن', style: TextStyle(color: Color(0xFFD4AF37)))),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFFD4AF37), Color(0xFFB8960C)]),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Admin: hafalati2026.bm@gmail.com', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                Text('رصيد الضمان: 125,420 DH', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // 1 - وجه الزبون
+  Widget clientView() => ListView(padding: EdgeInsets.all(16), children: [
+    SizedBox(height:30), Text('HAFALATI - كيفاش كيطلع للزبون', style: TextStyle(color: gold, fontSize:20, fontWeight: FontWeight.bold)),
+    SizedBox(height:10),
+    _card('أوركسترا سفيان اوفقير', 'بني ملال - شعبي', '10,000 MAD Solo / 20,000 Chikhat - 4.8 ★'),
+    _card('أوركسترا الأندلس', 'مراكش - أندلسي', '5,000 MAD / حفلة - 4.9 ★'),
+    _card('قاعة الرياض', 'الرباط', '8,000 MAD / ليلة - 5.0 ★'),
+  ]);
+  // 2 - وجه الفرقة
+  Widget bandView() => ListView(padding: EdgeInsets.all(16), children: [
+    SizedBox(height:30), Text('صفحتي - أنا كنحدد الثمن والتواريخ', style: TextStyle(color: gold, fontSize:18, fontWeight: FontWeight.bold)),
+    SizedBox(height:10),
+    TextField(decoration: InputDecoration(labelText: 'الثمن: $price MAD', labelStyle: TextStyle(color: gold), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: gold))), style: TextStyle(color: Colors.white), onChanged: (v)=> setState(()=> price=v)),
+    SizedBox(height:10),
+    TextField(decoration: InputDecoration(labelText: 'Solo: $solo MAD', labelStyle: TextStyle(color: gold), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: gold))), style: TextStyle(color: Colors.white)),
+    SizedBox(height:10),
+    TextField(decoration: InputDecoration(labelText: 'Chikhat: $chikhat MAD', labelStyle: TextStyle(color: gold), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: gold))), style: TextStyle(color: Colors.white)),
+    SizedBox(height:15), Text('التواريخ:', style: TextStyle(color: gold)), ListTile(title: Text('26 Oct محجوز - قاعة الرياض', style: TextStyle(color: Colors.white)), trailing: Icon(Icons.block, color: Colors.red)), ListTile(title: Text('27 Oct خاوي', style: TextStyle(color: Colors.white)), trailing: Icon(Icons.check, color: Colors.green)),
+    ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: gold), onPressed: (){}, child: Text('زيد تاريخ جديد', style: TextStyle(color: Colors.black))),
+    SizedBox(height:15), Text('فيديوهاتي:', style: TextStyle(color: gold)), ListTile(leading: Icon(Icons.play_circle, color: gold), title: Text('فيديو عرس 2:34', style: TextStyle(color: Colors.white)), trailing: Icon(Icons.delete, color: Colors.red)), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: gold), onPressed: (){}, child: Text('رفع فيديو جديد', style: TextStyle(color: Colors.black))),
+  ]);
+  // 3 - وجهك انت
+  Widget adminView() => ListView(padding: EdgeInsets.all(16), children: [
+    SizedBox(height:30),
+    Container(padding: EdgeInsets.all(16), decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(12), border: Border(left: BorderSide(color: gold, width:4))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text('أرباحي أنا', style: TextStyle(color: Colors.white70)), Text('248,750 DH', style: TextStyle(color: Colors.white, fontSize:32, fontWeight: FontWeight.bold)), Text('Escrow: 125,420 DH | عمولات: 12,542 DH', style: TextStyle(color: gold)),
+      SizedBox(height:8), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: gold), onPressed: (){}, child: Text('سحب فلوسي إلى Attijariwafa ****4521', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
+    ])),
+    SizedBox(height:15), Text('نقبل ولا نرفض', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
+    _dem('أوركسترا الأندلس - بغا يطلع الثمن من 5,000 إلى 6,000 MAD'), _dem('أوركسترا نجوم سوس - زاد 2 فيديو جداد'),
+    SizedBox(height:15), Text('الفرق باغين يسحبو', style: TextStyle(color: gold)), ListTile(title: Text('سفيان يطلب سحب 6,000 DH', style: TextStyle(color: Colors.white)), subtitle: Text('GPS وصل + خدمة مكتملة - إلى Attijariwafa', style: TextStyle(color: Colors.white54, fontSize:11)), trailing: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: (){}, child: Text('أوافق'))),
+  ]);
+  Widget _card(String n, String c, String p) => Container(margin: EdgeInsets.only(bottom:10), padding: EdgeInsets.all(12), decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10), border: Border.all(color: gold)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(n, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text(c, style: TextStyle(color: Colors.white54, fontSize:12)), Text(p, style: TextStyle(color: gold, fontSize:12, fontWeight: FontWeight.bold))]));
+  Widget _dem(String t) => Container(margin: EdgeInsets.only(top:8), padding: EdgeInsets.all(10), decoration: BoxDecoration(color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(10), border: Border.all(color: gold)), child: Row(children: [Expanded(child: Text(t, style: TextStyle(color: Colors.white, fontSize:12))), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green), onPressed: (){}, child: Text('أقبل')), SizedBox(width:5), ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.red), onPressed: (){}, child: Text('أرفض'))]));
 }
