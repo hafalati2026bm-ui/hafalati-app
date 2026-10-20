@@ -1,4 +1,4 @@
-name: HAFALATI Gold Final Complet
+name: HAFALATI Clean Form
 on:
   push:
     branches: [ main ]
@@ -16,14 +16,14 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Build Final Gold
+      - name: Build Clean
         run: |
           flutter create . --org com.hafalati.app --project-name hafalati --platforms android --overwrite
           cat > pubspec.yaml << 'ENDPUB'
           name: hafalati
-          description: HAFALATI Gold Black Complet - Registration + Admin
+          description: HAFALATI Clean
           publish_to: 'none'
-          version: 11.0.0+700
+          version: 13.0.0+900
           environment:
             sdk: '>=3.0.0 <4.0.0'
           dependencies:
@@ -46,300 +46,122 @@ jobs:
           import 'package:video_player/video_player.dart';
           import 'package:url_launcher/url_launcher.dart';
           const gold = Color(0xFFD4AF37);
-          const goldLight = Color(0xFFFFD700);
           const blackBg = Color(0xFF0A0A0A);
           const blackCard = Color(0xFF1A1A1A);
-
           class AppState extends ChangeNotifier {
             List<Map<String, dynamic>> pending = [];
             List<Map<String, dynamic>> approved = [
-              {'name':'أوركسترا سفيان','type':'الأوركسترات','city':'بني ملال','phone':'hidden','videos':[{'path':null,'title':'عرس بني ملال'}]},
-              {'name':'النكافة حسنة','type':'النكافة','city':'بني ملال','phone':'hidden','videos':[{'path':null,'title':'لبسة عروسة'}]},
+              {'name':'أوركسترا سفيان','type':'الأوركسترات','city':'بني ملال','videos':[{'path':null,'title':'عرس'}]},
             ];
-            List<Map<String, dynamic>> clients = [];
-            void addPending(Map<String, dynamic> f){ 
-              final idx = approved.indexWhere((e)=> e['name']==f['name'] && e['type']==f['type']);
-              if(idx!=-1){ approved[idx]['videos'].addAll(f['videos']); notifyListeners(); return; }
-              pending.add(f); notifyListeners(); 
-            }
-            void addClient(Map<String, dynamic> c){ clients.add(c); notifyListeners(); }
+            void addPending(Map<String, dynamic> f){ pending.add(f); notifyListeners(); }
             void approve(int i){ approved.add(pending[i]); pending.removeAt(i); notifyListeners(); }
             void reject(int i){ pending.removeAt(i); notifyListeners(); }
           }
-
           void main()=> runApp(const MyApp());
-          class MyApp extends StatelessWidget{ const MyApp({super.key}); @override Widget build(BuildContext c){ return ChangeNotifierProvider(create: (_)=> AppState(), child: MaterialApp(debugShowCheckedModeBanner:false, theme: ThemeData(scaffoldBackgroundColor: blackBg, fontFamily: 'Cairo'), home: const Splash())); } }
-
-          // SPLASH ذهبي وأسود
-          class Splash extends StatefulWidget{ const Splash({super.key}); @override State<Splash> createState()=> _SplashS(); }
-          class _SplashS extends State<Splash>{
-            @override void initState(){ super.initState(); Future.delayed(const Duration(seconds:2), ()=> Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const HomeGold()))); }
-            @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[
-                Container(width:110, height:110, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold, width:2), color: blackCard), child: const Center(child: Text('H', style: TextStyle(color: gold, fontSize:60, fontWeight: FontWeight.bold)))),
-                const SizedBox(height:16),
-                const Text('HAFALATI', style: TextStyle(color: gold, fontSize:32, fontWeight: FontWeight.bold, letterSpacing:3)),
-                const SizedBox(height:6),
-                const Text('بني ملال و النواحي', style: TextStyle(color: Colors.white54, fontSize:12)),
-                const SizedBox(height:20),
-                const SizedBox(width:30, height:30, child: CircularProgressIndicator(color: gold, strokeWidth:3)),
-              ])));
-            }
-          }
-
-          // HOME ذهبي وأسود - بحال التصويرة
-          class HomeGold extends StatelessWidget{
-            const HomeGold({super.key});
+          class MyApp extends StatelessWidget{ const MyApp({super.key}); @override Widget build(BuildContext c){ return ChangeNotifierProvider(create: (_)=> AppState(), child: MaterialApp(debugShowCheckedModeBanner:false, home: const HomeGold())); } }
+          class HomeGold extends StatefulWidget{ const HomeGold({super.key}); @override State<HomeGold> createState()=> _HG(); }
+          class _HG extends State<HomeGold>{
+            int secretTap=0;
             @override Widget build(BuildContext context){
               return Scaffold(backgroundColor: blackBg,
-                body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(18), child: Column(children:[
-                  const SizedBox(height:10),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children:[Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold)), child: const Icon(Icons.music_note, color: gold, size:22)), const SizedBox(width:8), const Text('HAFALATI', style: TextStyle(color: gold, fontSize:28, fontWeight: FontWeight.bold, letterSpacing:2))]),
-                  const SizedBox(height:4),
-                  const Text('Marketplace des orchestres • سوق الفرق الموسيقية', style: TextStyle(color: gold, fontSize:10)),
-                  const SizedBox(height:28),
-                  const Align(alignment: Alignment.centerRight, child: Text('مرحباً! كيف تريد الانضمام ؟', style: TextStyle(color: Colors.white, fontSize:20, fontWeight: FontWeight.bold))),
-                  const SizedBox(height:4),
-                  const Align(alignment: Alignment.centerRight, child: Text('اختر دورك للمتابعة | Choisissez votre profil', style: TextStyle(color: Colors.white54, fontSize:11))),
-                  const SizedBox(height:22),
-
-                  // كارت فرقة
-                  _goldCard(context, icon: Icons.music_note, title:'سجل كفرقة موسيقية', sub:'Créer un compte orchestre', desc:'أنضم كفرقة موسيقية • عرض فيديواتك • خانة خاصة بك', onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const TypesGold()))),
-
-                  const SizedBox(height:16),
-
-                  // كارت زبون
-                  _goldCard(context, icon: Icons.people, title:'سجل كزبون - باغي عرس', sub:'Je veux un mariage', desc:'سجل كزبون • شوف الفيديوات بحال فيسبوك • خانة خاصة بك', isClient:true, onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const RegisterClient()))),
-
-                  const SizedBox(height:30),
-                  const Text('لديك حساب بالفعل؟', style: TextStyle(color: Colors.white54, fontSize:12)),
-                  const SizedBox(height:8),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children:[
-                    GestureDetector(onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const LoginClient())), child: const Text('تسجيل الدخول كزبون', style: TextStyle(color: gold, fontSize:11))),
-                    const Text('  |  ', style: TextStyle(color: Colors.white24)),
-                    GestureDetector(onTap: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const LoginAdmin())), child: const Text('Admin 0704246107', style: TextStyle(color: gold, decoration: TextDecoration.underline, fontSize:11))),
-                  ]),
+                body: SafeArea(child: Padding(padding: const EdgeInsets.all(18), child: Column(children:[
                   const SizedBox(height:20),
-                  const Text('بالمتابعة أنت توافق على الشروط وسياسة الخصوصية', textAlign: TextAlign.center, style: TextStyle(color: Colors.white24, fontSize:9)),
+                  GestureDetector(onTap: (){ secretTap++; if(secretTap>=5){ secretTap=0; Navigator.push(context, MaterialPageRoute(builder: (_)=> const LoginAdminSecret())); } }, child: const Text('HAFALATI', style: TextStyle(color: gold, fontSize:30, fontWeight: FontWeight.bold, letterSpacing:2))),
+                  const SizedBox(height:40),
+                  _card(context, Icons.music_note, 'سجل كفرقة', ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const TypesGold()))),
+                  const SizedBox(height:14),
+                  _card(context, Icons.person, 'سجل كزبون', ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const ClientCategory()))),
                 ]))),
               );
             }
-            Widget _goldCard(BuildContext ctx, {required IconData icon, required String title, required String sub, required String desc, bool isClient=false, required VoidCallback onTap}){
-              return GestureDetector(onTap: onTap, child: Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: gold.withOpacity(0.6), width:1.2), boxShadow:[BoxShadow(color: gold.withOpacity(0.12), blurRadius:10)]), child: Row(children:[
-                Container(width:64, height:64, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold, width:1.2), color: blackBg), child: Icon(icon, color: gold, size:30)),
-                const SizedBox(width:12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-                  Text(title, style: const TextStyle(color: Colors.white, fontSize:14, fontWeight: FontWeight.bold)),
-                  const SizedBox(height:2),
-                  Text(sub, style: const TextStyle(color: goldLight, fontSize:10)),
-                  const SizedBox(height:4),
-                  Text(desc, style: const TextStyle(color: Colors.white38, fontSize:9)),
-                ])),
-                const Icon(Icons.arrow_forward_ios, color: gold, size:14),
-              ])));
-            }
+            Widget _card(BuildContext ctx, IconData icon, String t, VoidCallback onTap){ return GestureDetector(onTap: onTap, child: Container(height:72, decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: gold.withOpacity(0.5))), child: Row(children:[const SizedBox(width:16), Container(width:48, height:48, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold)), child: Icon(icon, color: gold)), const SizedBox(width:14), Text(t, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), const Spacer(), const Icon(Icons.arrow_forward_ios, color: gold, size:14), const SizedBox(width:16)]))); }
           }
-
-          // أنواع الفرق - ذهبي وأسود
           class TypesGold extends StatelessWidget{
             const TypesGold({super.key});
             @override Widget build(BuildContext context){
-              final types = [
-                {'t':'المصورين','i':Icons.camera_alt},
-                {'t':'قاعات الأعراس','i':Icons.meeting_room},
-                {'t':'الأوركسترات','i':Icons.music_note},
-                {'t':'الدقايقية و عيساوة','i':Icons.self_improvement},
-                {'t':'التريتور','i':Icons.restaurant},
-                {'t':'النكافة','i':Icons.face_retouching_natural},
-              ];
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('اختار نوع فرقتك - خانة خاصة بك', style: TextStyle(color: gold, fontSize:13))),
-                body: GridView.builder(padding: const EdgeInsets.all(14), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2, crossAxisSpacing:12, mainAxisSpacing:12, childAspectRatio:1.1), itemCount: types.length, itemBuilder: (c,i){ final tt=types[i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> RegisterFerqaGold(type: tt['t'] as String))), child: Container(decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: gold.withOpacity(0.4))), child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[Icon(tt['i'] as IconData, color: gold, size:36), const SizedBox(height:10), Text(tt['t'] as String, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize:12)), const SizedBox(height:4), const Text('خانة خاصة - سجل معلوماتك', style: TextStyle(color: gold, fontSize:8))]))); }),
+              final types=['المصورين','قاعات الأعراس','الأوركسترات','الدقايقية و عيساوة','التريتور','النكافة'];
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('اختار نوعك', style: TextStyle(color: gold))),
+                body: GridView.builder(padding: const EdgeInsets.all(14), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2, childAspectRatio:1.15), itemCount: types.length, itemBuilder: (c,i){ return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> RegisterClean(type: types[i]))), child: Container(margin: const EdgeInsets.all(6), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: gold.withOpacity(0.3))), child: Center(child: Text(types[i], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))))); }),
               );
             }
           }
-
-          // تسجيل فرقة - خانة خاصة بها - ذهبي وأسود
-          class RegisterFerqaGold extends StatefulWidget{ final String type; const RegisterFerqaGold({super.key, required this.type}); @override State<RegisterFerqaGold> createState()=> _RFG(); }
-          class _RFG extends State<RegisterFerqaGold>{
-            final name=TextEditingController(); final city=TextEditingController(); final phone=TextEditingController(); final desc=TextEditingController();
+          // فورم نقي بلا هضرة بزاف
+          class RegisterClean extends StatefulWidget{ final String type; const RegisterClean({super.key, required this.type}); @override State<RegisterClean> createState()=> _RC(); }
+          class _RC extends State<RegisterClean>{
+            final name=TextEditingController(); final city=TextEditingController(); final phone=TextEditingController();
             XFile? vid;
             Future<void> pick() async { final v=await ImagePicker().pickVideo(source: ImageSource.gallery); if(v!=null) setState(()=> vid=v); }
             @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text('خانة ${widget.type} - سجل معلوماتك', style: const TextStyle(color: gold, fontSize:12))),
-                body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: gold.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: gold.withOpacity(0.3))), child: const Row(children:[Icon(Icons.info, color: gold, size:16), SizedBox(width:6), Expanded(child: Text('هادي الخانة ديالك - عمر معلوماتك - الفيديو فقط كيبان للزبائن - النمرة مخفية عند الوسيط 0704246107', style: TextStyle(color: gold, fontSize:10)))]) ),
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text(widget.type, style: const TextStyle(color: gold, fontSize:14))),
+                body: Padding(padding: const EdgeInsets.all(20), child: Column(children:[
+                  const SizedBox(height:10),
+                  TextField(controller: name, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: 'الاسم', hintStyle: const TextStyle(color: Colors.white38), prefixIcon: const Icon(Icons.person, color: gold, size:20), filled: true, fillColor: blackCard, enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: gold.withOpacity(0.3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: gold)))) ,
                   const SizedBox(height:14),
-                  _field(name, 'اسم الفرقة * - مثلا: أوركسترا سفيان / النكافة حسنة'),
-                  const SizedBox(height:10),
-                  _field(city, 'المدينة * - بني ملال - قصبة تادلة - الفقيه بن صالح...'),
-                  const SizedBox(height:10),
-                  _field(phone, 'رقم الواتساب ديالك * - مخفي - غير الوسيط كيشوفو - 06...'),
-                  const SizedBox(height:10),
-                  _field(desc, 'وصف خدمتك - مثلا: كنخدم أعراس فخمة - 10 سنوات خبرة', max:3),
+                  TextField(controller: city, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: 'المدينة', hintStyle: const TextStyle(color: Colors.white38), prefixIcon: const Icon(Icons.location_on, color: gold, size:20), filled: true, fillColor: blackCard, enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: gold.withOpacity(0.3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: gold)))) ,
                   const SizedBox(height:14),
-                  GestureDetector(onTap: pick, child: Container(width: double.infinity, height:140, decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold, width:1)), child: vid==null ? const Column(mainAxisAlignment: MainAxisAlignment.center, children:[Icon(Icons.video_call, color: gold, size:44), SizedBox(height:6), Text('اضغط هنا لرفع فيديو من هاتفك نيشان', style: TextStyle(color: Colors.white70, fontSize:11)), Text('بحال واتساب - ماشي رابط', style: TextStyle(color: Colors.white38, fontSize:9))]) : Column(mainAxisAlignment: MainAxisAlignment.center, children:[const Icon(Icons.check_circle, color: Colors.greenAccent, size:44), const SizedBox(height:6), Text('✅ ${vid!.name}', style: const TextStyle(color: Colors.greenAccent, fontSize:11))]))),
-                  const SizedBox(height:18),
-                  SizedBox(width: double.infinity, height:52, child: ElevatedButton(onPressed: (){
-                    if(name.text.isEmpty || city.text.isEmpty || phone.text.isEmpty){ ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عمر كل الخانات'), backgroundColor: Colors.red)); return; }
-                    if(vid==null){ ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اختار فيديو'), backgroundColor: Colors.red)); return; }
-                    context.read<AppState>().addPending({'name':name.text, 'type':widget.type, 'city':city.text, 'phone':phone.text, 'desc':desc.text, 'videos':[{'path':vid!.path,'title':vid!.name}]});
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التسجيل - خانة خاصة بك - في انتظار قبول الوسيط 0704246107'), backgroundColor: Colors.green));
-                    Navigator.pop(context); Navigator.pop(context);
-                  }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('سجل - إرسال للوسيط للموافقة', style: TextStyle(fontWeight: FontWeight.bold)))),
-                  const SizedBox(height:8),
-                  const Center(child: Text('بعد الموافقة - غادي تولي عندك بروفايل خاص فيه فيديواتك كاملين', style: TextStyle(color: Colors.white24, fontSize:9))),
-                ])),
-              );
-            }
-            Widget _field(TextEditingController c, String label, {int max=1}){ return TextField(controller: c, maxLines: max, style: const TextStyle(color: Colors.white, fontSize:13), decoration: InputDecoration(labelText: label, labelStyle: const TextStyle(color: gold, fontSize:11), enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: gold), borderRadius: BorderRadius.circular(10)), focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: goldLight, width:1.5), borderRadius: BorderRadius.circular(10)), contentPadding: const EdgeInsets.all(12))); }
-          }
-
-          // تسجيل زبون - خانة خاصة به
-          class RegisterClient extends StatefulWidget{ const RegisterClient({super.key}); @override State<RegisterClient> createState()=> _RC(); }
-          class _RC extends State<RegisterClient>{
-            final name=TextEditingController(); final city=TextEditingController(); final phone=TextEditingController();
-            @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('خانة الزبون - سجل كزبون', style: TextStyle(color: gold, fontSize:13))),
-                body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(children:[
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: gold.withOpacity(0.08), borderRadius: BorderRadius.circular(10), border: Border.all(color: gold.withOpacity(0.3))), child: const Row(children:[Icon(Icons.person, color: gold, size:16), SizedBox(width:6), Expanded(child: Text('هادي الخانة ديالك كزبون - عمر معلوماتك - باش الوسيط يتواصل معاك', style: TextStyle(color: gold, fontSize:10)))]) ),
-                  const SizedBox(height:14),
-                  _f(name, 'اسمك الكامل *'),
+                  TextField(controller: phone, keyboardType: TextInputType.phone, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: 'الهاتف', hintStyle: const TextStyle(color: Colors.white38), prefixIcon: const Icon(Icons.phone, color: gold, size:20), filled: true, fillColor: blackCard, enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: gold.withOpacity(0.3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: gold)))) ,
+                  const SizedBox(height:20),
+                  GestureDetector(onTap: pick, child: Container(width: double.infinity, height:110, decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.4))), child: vid==null ? const Column(mainAxisAlignment: MainAxisAlignment.center, children:[Icon(Icons.videocam, color: gold, size:32), SizedBox(height:6), Icon(Icons.add, color: Colors.white38, size:18)]) : Column(mainAxisAlignment: MainAxisAlignment.center, children:[const Icon(Icons.check_circle, color: Colors.green, size:32), const SizedBox(height:6), Text(vid!.name, style: const TextStyle(color: Colors.green, fontSize:10), maxLines:1)]))),
+                  const Spacer(),
+                  SizedBox(width: double.infinity, height:52, child: ElevatedButton(onPressed: (){ if(name.text.isEmpty) return; if(vid==null){ ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('اختار فيديو'))); return; } context.read<AppState>().addPending({'name':name.text, 'type':widget.type, 'city':city.text, 'phone':phone.text, 'videos':[{'path':vid!.path,'title':vid!.name}]}); Navigator.pop(context); Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم'), backgroundColor: Colors.green)); }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('تسجيل', style: TextStyle(fontWeight: FontWeight.bold, fontSize:16)))),
                   const SizedBox(height:10),
-                  _f(city, 'مدينتك * - بني ملال...'),
-                  const SizedBox(height:10),
-                  _f(phone, 'رقم الواتساب ديالك * - 06...'),
-                  const SizedBox(height:20),
-                  SizedBox(width: double.infinity, height:52, child: ElevatedButton(onPressed: (){
-                    if(name.text.isEmpty || phone.text.isEmpty){ ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عمر الخانات'), backgroundColor: Colors.red)); return; }
-                    context.read<AppState>().addClient({'name':name.text, 'city':city.text, 'phone':phone.text});
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيلك كزبون - دابا تقدر تشوف الفيديوات'), backgroundColor: Colors.green));
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const ClientCategory()));
-                  }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), child: const Text('سجل كزبون - دخول', style: TextStyle(fontWeight: FontWeight.bold)))),
-                ])),
-              );
-            }
-            Widget _f(TextEditingController c, String l){ return TextField(controller: c, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: l, labelStyle: const TextStyle(color: gold, fontSize:11), enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: gold), borderRadius: BorderRadius.circular(10)))); }
-          }
-
-          class LoginClient extends StatelessWidget{
-            const LoginClient({super.key});
-            @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('دخول زبون', style: TextStyle(color: gold)) ),
-                body: Padding(padding: const EdgeInsets.all(16), child: Column(children:[
-                  const SizedBox(height:20),
-                  const Icon(Icons.person, color: gold, size:60),
-                  const SizedBox(height:20),
-                  const TextField(style: TextStyle(color: Colors.white), decoration: InputDecoration(labelText: 'رقم الواتساب', labelStyle: TextStyle(color: gold), enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: gold)))),
-                  const SizedBox(height:20),
-                  SizedBox(width: double.infinity, height:50, child: ElevatedButton(onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> const ClientCategory())), style: ElevatedButton.styleFrom(backgroundColor: gold), child: const Text('دخول', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)))),
                 ])),
               );
             }
           }
-
-          // زبون - كيشوف الكاتيغوري والفرق بفيديواتهم
           class ClientCategory extends StatelessWidget{
             const ClientCategory({super.key});
             @override Widget build(BuildContext context){
-              final cats = [
-                {'t':'الأوركسترات','i':Icons.music_note},
-                {'t':'النكافة','i':Icons.face_retouching_natural},
-                {'t':'المصورين','i':Icons.camera_alt},
-                {'t':'قاعات الأعراس','i':Icons.meeting_room},
-                {'t':'الدقايقية و عيساوة','i':Icons.self_improvement},
-                {'t':'التريتور','i':Icons.restaurant},
-              ];
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('اختار نوع الفرقة - شوف الفيديوات بحال يوتيوب', style: TextStyle(color: gold, fontSize:11))),
-                body: GridView.builder(padding: const EdgeInsets.all(12), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2, childAspectRatio:1.1), itemCount: cats.length, itemBuilder: (c,i){ final cat=cats[i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> CategoryFeed(type: cat['t'] as String))), child: Container(margin: const EdgeInsets.all(6), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: gold.withOpacity(0.4))), child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[Icon(cat['i'] as IconData, color: gold, size:32), const SizedBox(height:8), Text(cat['t'] as String, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize:12)), const Text('شوف الفرق + فيديوات', style: TextStyle(color: gold, fontSize:9))]))); }),
+              final cats=['الأوركسترات','النكافة','المصورين','قاعات الأعراس','الدقايقية و عيساوة','التريتور'];
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('اختار', style: TextStyle(color: gold))),
+                body: GridView.builder(padding: const EdgeInsets.all(12), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2), itemCount: cats.length, itemBuilder: (c,i){ return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> CategoryFeed(type: cats[i]))), child: Container(margin: const EdgeInsets.all(6), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.3))), child: Center(child: Text(cats[i], style: const TextStyle(color: Colors.white))))); }),
               );
             }
           }
-
           class CategoryFeed extends StatelessWidget{
             final String type; const CategoryFeed({super.key, required this.type});
             @override Widget build(BuildContext context){
               final all=context.watch<AppState>().approved.where((e)=> e['type']==type).toList();
               return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text(type, style: const TextStyle(color: gold)) ),
-                body: all.isEmpty ? const Center(child: Text('ما كاين حتى فرقة مقبولة - سيري للأدمن', style: TextStyle(color: Colors.white38))) : ListView.builder(padding: const EdgeInsets.all(10), itemCount: all.length, itemBuilder: (c,i){ final f=all[i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> FerqaProfileGold(ferqa: f))), child: Container(margin: const EdgeInsets.only(bottom:12), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(14), border: Border.all(color: gold.withOpacity(0.3))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-                  ListTile(leading: Container(width:44, height:44, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold)), child: const Icon(Icons.person, color: gold)), title: Text(f['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize:13)), subtitle: Text('${f['city']} - ${f['videos'].length} فيديو', style: const TextStyle(color: Colors.white54, fontSize:10))),
-                  Container(height:160, color: Colors.black, child: const Center(child: Icon(Icons.play_circle_fill, color: gold, size:50))),
-                  Padding(padding: const EdgeInsets.all(10), child: Row(children:[Expanded(child: Text(f['videos'][0]['title'], style: const TextStyle(color: Colors.white, fontSize:11))), const Icon(Icons.arrow_forward_ios, color: gold, size:12)])),
-                ]))); }),
+                body: ListView.builder(padding: const EdgeInsets.all(10), itemCount: all.length, itemBuilder: (c,i){ final f=all[i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> FerqaProfile(ferqa: f))), child: Container(margin: const EdgeInsets.only(bottom:10), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.3))), child: ListTile(leading: const Icon(Icons.play_circle, color: gold), title: Text(f['name'], style: const TextStyle(color: Colors.white)), subtitle: Text(f['city'], style: const TextStyle(color: Colors.white54))))); }),
               );
             }
           }
-
-          class FerqaProfileGold extends StatelessWidget{
-            final Map<String, dynamic> ferqa; const FerqaProfileGold({super.key, required this.ferqa});
+          class FerqaProfile extends StatelessWidget{
+            final Map<String, dynamic> ferqa; const FerqaProfile({super.key, required this.ferqa});
             @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text(ferqa['name'], style: const TextStyle(color: gold, fontSize:13)) ),
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text(ferqa['name'], style: const TextStyle(color: gold)) ),
                 body: Column(children:[
-                  Container(padding: const EdgeInsets.all(12), color: blackCard, child: Row(children:[Container(width:56, height:56, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold, width:1.5)), child: const Icon(Icons.person, color: gold, size:28)), const SizedBox(width:10), Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(ferqa['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text('${ferqa['type']} - ${ferqa['city']}', style: const TextStyle(color: gold, fontSize:11)), Text('${ferqa['videos'].length} فيديو', style: const TextStyle(color: Colors.white38, fontSize:10))])])),
-                  Expanded(child: GridView.builder(padding: const EdgeInsets.all(10), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2, childAspectRatio:0.75), itemCount: ferqa['videos'].length, itemBuilder: (c,i){ final v=ferqa['videos'][i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> VideoPageGold(video: v, ferqa: ferqa))), child: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.3))), child: Column(children:[Expanded(child: Container(decoration: const BoxDecoration(color: Colors.black, borderRadius: BorderRadius.vertical(top: Radius.circular(12))), child: const Center(child: Icon(Icons.play_circle_fill, color: gold, size:44)))), Padding(padding: const EdgeInsets.all(6), child: Text(v['title'], style: const TextStyle(color: Colors.white, fontSize:9), maxLines:2))]))); })),
-                  Padding(padding: const EdgeInsets.all(12), child: SizedBox(width: double.infinity, height:50, child: ElevatedButton.icon(onPressed: () async { final u=Uri.parse('https://wa.me/212704246107?text=${Uri.encodeComponent('السلام بغيت ${ferqa['name']} - ${ferqa['type']}')}'); await launchUrl(u, mode: LaunchMode.externalApplication); }, icon: const Icon(Icons.chat), label: const Text('بغيت هاد الفرقة - دوز للوسيط 0704246107', style: TextStyle(fontWeight: FontWeight.bold, fontSize:11)), style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black)))),
+                  Expanded(child: GridView.builder(padding: const EdgeInsets.all(10), gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2, childAspectRatio:0.8), itemCount: ferqa['videos'].length, itemBuilder: (c,i){ final v=ferqa['videos'][i]; return GestureDetector(onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> VideoPage(video: v, ferqa: ferqa))), child: Container(margin: const EdgeInsets.all(4), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.3))), child: Column(children:[Expanded(child: Container(color: Colors.black, child: const Center(child: Icon(Icons.play_circle_fill, color: gold, size:40)))), Padding(padding: const EdgeInsets.all(6), child: Text(v['title'], style: const TextStyle(color: Colors.white, fontSize:9)))]))); })),
+                  Padding(padding: const EdgeInsets.all(12), child: SizedBox(width: double.infinity, height:50, child: ElevatedButton.icon(onPressed: () async { final u=Uri.parse('https://wa.me/212704246107?text=${Uri.encodeComponent('بغيت ${ferqa['name']}')}'); await launchUrl(u, mode: LaunchMode.externalApplication); }, icon: const Icon(Icons.chat), label: const Text('تواصل واتساب'), style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black)))),
                 ]),
               );
             }
           }
-
-          class VideoPageGold extends StatefulWidget{ final Map<String, dynamic> video; final Map<String, dynamic> ferqa; const VideoPageGold({super.key, required this.video, required this.ferqa}); @override State<VideoPageGold> createState()=> _VPG(); }
-          class _VPG extends State<VideoPageGold>{ VideoPlayerController? con; @override void initState(){ super.initState(); final p=widget.video['path']; if(p!=null && File(p).existsSync()){ con=VideoPlayerController.file(File(p))..initialize().then((_)=> setState((){ con!.play(); con!.setLooping(true); })); } } @override void dispose(){ con?.dispose(); super.dispose(); } @override Widget build(BuildContext context){ return Scaffold(backgroundColor: Colors.black, body: Stack(children:[Center(child: con!=null && con!.value.isInitialized ? AspectRatio(aspectRatio: con!.value.aspectRatio, child: VideoPlayer(con!)) : const Icon(Icons.video_library, color: gold, size:60)), Positioned(top:36, left:8, child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: ()=> Navigator.pop(context))), Positioned(left:12, right:12, bottom:20, child: ElevatedButton.icon(onPressed: () async { final u=Uri.parse('https://wa.me/212704246107?text=${Uri.encodeComponent('بغيت ${widget.ferqa['name']}')}'); await launchUrl(u, mode: LaunchMode.externalApplication); }, icon: const Icon(Icons.chat), label: const Text('احجز عبر الوسيط 0704246107 - الثمن عند الوسيط'), style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black)))])); } }
-
-          // Admin - بلاصة ديالك - ذهبي وأسود
-          class LoginAdmin extends StatefulWidget{ const LoginAdmin({super.key}); @override State<LoginAdmin> createState()=> _LA(); }
-          class _LA extends State<LoginAdmin>{
-            final pass=TextEditingController();
+          class VideoPage extends StatefulWidget{ final Map<String, dynamic> video; final Map<String, dynamic> ferqa; const VideoPage({super.key, required this.video, required this.ferqa}); @override State<VideoPage> createState()=> _VP(); }
+          class _VP extends State<VideoPage>{ VideoPlayerController? con; @override void initState(){ super.initState(); final p=widget.video['path']; if(p!=null && File(p).existsSync()){ con=VideoPlayerController.file(File(p))..initialize().then((_)=> setState((){ con!.play(); con!.setLooping(true); })); } } @override void dispose(){ con?.dispose(); super.dispose(); } @override Widget build(BuildContext context){ return Scaffold(backgroundColor: Colors.black, body: Stack(children:[Center(child: con!=null && con!.value.isInitialized ? AspectRatio(aspectRatio: con!.value.aspectRatio, child: VideoPlayer(con!)) : const Icon(Icons.video_library, color: gold, size:60)), Positioned(top:36, left:8, child: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: ()=> Navigator.pop(context))), Positioned(left:12, right:12, bottom:20, child: ElevatedButton.icon(onPressed: () async { final u=Uri.parse('https://wa.me/212704246107?text=${Uri.encodeComponent('بغيت ${widget.ferqa['name']}')}'); await launchUrl(u, mode: LaunchMode.externalApplication); }, icon: const Icon(Icons.chat), label: const Text('تواصل واتساب'), style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black)))])); } }
+          class LoginAdminSecret extends StatefulWidget{ const LoginAdminSecret({super.key}); @override State<LoginAdminSecret> createState()=> _LAS(); }
+          class _LAS extends State<LoginAdminSecret>{
+            final pass=TextEditingController(); bool obscure=true;
             @override Widget build(BuildContext context){
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('دخول Admin - 0704246107', style: TextStyle(color: gold)) ),
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: const Text('دخول', style: TextStyle(color: gold, fontSize:13))),
                 body: Padding(padding: const EdgeInsets.all(20), child: Column(children:[
                   const SizedBox(height:30),
-                  const Icon(Icons.admin_panel_settings, color: gold, size:70),
-                  const SizedBox(height:16),
-                  const Text('بلاصة الوسيط الوحيد', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  Container(width:80, height:80, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: gold, width:2)), child: const Icon(Icons.lock, color: gold, size:40)),
                   const SizedBox(height:20),
-                  TextField(controller: pass, obscureText: true, style: const TextStyle(color: Colors.white), decoration: InputDecoration(labelText: 'كلمة السر - hafalati2026', labelStyle: const TextStyle(color: gold), enabledBorder: OutlineInputBorder(borderSide: const BorderSide(color: gold)))),
+                  TextField(controller: pass, obscureText: obscure, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: '••••', prefixIcon: const Icon(Icons.lock, color: gold), suffixIcon: IconButton(icon: Icon(obscure?Icons.visibility_off:Icons.visibility, color: gold), onPressed: ()=> setState(()=> obscure=!obscure)), filled: true, fillColor: blackCard, enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: gold.withOpacity(0.3))), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: gold)))),
                   const SizedBox(height:20),
-                  SizedBox(width: double.infinity, height:50, child: ElevatedButton(onPressed: (){
-                    if(pass.text=='hafalati2026' || pass.text=='0704246107'){ Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const AdminGold())); } else { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('كلمة السر غالطة'), backgroundColor: Colors.red)); }
-                  }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), child: const Text('دخول Admin', style: TextStyle(fontWeight: FontWeight.bold)))),
-                  const SizedBox(height:10),
-                  const Text('كلمة السر: hafalati2026', style: TextStyle(color: Colors.white24, fontSize:10)),
+                  SizedBox(width: double.infinity, height:50, child: ElevatedButton(onPressed: (){ if(pass.text.trim()=='hafalati2026'){ Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const AdminGold())); } else { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطأ'), backgroundColor: Colors.red)); } }, style: ElevatedButton.styleFrom(backgroundColor: gold, foregroundColor: Colors.black), child: const Text('دخول'))),
                 ])),
               );
             }
           }
-
           class AdminGold extends StatelessWidget{
             const AdminGold({super.key});
             @override Widget build(BuildContext context){
               final st=context.watch<AppState>();
-              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text('HAFALATI Admin - طلبات (${st.pending.length}) + زبائن (${st.clients.length})', style: const TextStyle(color: gold, fontSize:10))),
-                body: SingleChildScrollView(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-                  Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: gold.withOpacity(0.1), borderRadius: BorderRadius.circular(8), border: Border.all(color: gold)), child: Text('مرحبا Narjiss - عندك ${st.pending.length} طلب فرقة + ${st.clients.length} زبون - نتي لي كتقبلي', style: const TextStyle(color: gold, fontSize:11, fontWeight: FontWeight.bold))),
-                  const SizedBox(height:12),
-                  const Text('طلبات الفرق - في الانتظار', style: TextStyle(color: gold, fontWeight: FontWeight.bold)),
-                  const SizedBox(height:8),
-                  ...List.generate(st.pending.length, (i){ final f=st.pending[i]; return Container(margin: const EdgeInsets.only(bottom:10), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.4))), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-                    Row(children:[const Icon(Icons.video_library, color: gold, size:18), const SizedBox(width:6), Expanded(child: Text(f['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize:12))) , Text(f['type'], style: const TextStyle(color: gold, fontSize:10))]),
-                    const SizedBox(height:4),
-                    Text('المدينة: ${f['city']} - النمرة: ${f['phone']} - الوصف: ${f['desc']}', style: const TextStyle(color: Colors.white54, fontSize:10)),
-                    Text('فيديو: ${f['videos'][0]['title']}', style: const TextStyle(color: Colors.white38, fontSize:9)),
-                    const SizedBox(height:8),
-                    Row(children:[
-                      Expanded(child: ElevatedButton.icon(onPressed: ()=> context.read<AppState>().approve(i), icon: const Icon(Icons.check, size:14), label: const Text('قبول', style: TextStyle(fontSize:11)), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white))),
-                      const SizedBox(width:8),
-                      Expanded(child: ElevatedButton.icon(onPressed: ()=> context.read<AppState>().reject(i), icon: const Icon(Icons.close, size:14), label: const Text('رفض', style: TextStyle(fontSize:11)), style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white))),
-                    ]),
-                  ])); }),
-                  if(st.pending.isEmpty) const Center(child: Padding(padding: EdgeInsets.all(16), child: Text('لا توجد طلبات فرق جديدة', style: TextStyle(color: Colors.white24, fontSize:11)))),
-                  const Divider(color: gold),
-                  const Text('الزبائن المسجلين', style: TextStyle(color: gold, fontWeight: FontWeight.bold, fontSize:12)),
-                  const SizedBox(height:8),
-                  ...List.generate(st.clients.length, (i){ final c=st.clients[i]; return Container(margin: const EdgeInsets.only(bottom:6), padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.white12)), child: Row(children:[const Icon(Icons.person, color: Colors.white54, size:16), const SizedBox(width:8), Expanded(child: Text('${c['name']} - ${c['city']} - ${c['phone']}', style: const TextStyle(color: Colors.white, fontSize:11))), IconButton(icon: const Icon(Icons.chat, color: Colors.green, size:18), onPressed: () async { final u=Uri.parse('https://wa.me/${c['phone']}'); await launchUrl(u, mode: LaunchMode.externalApplication); })])); }),
-                  if(st.clients.isEmpty) const Center(child: Padding(padding: EdgeInsets.all(16), child: Text('لا يوجد زبائن مسجلين', style: TextStyle(color: Colors.white24, fontSize:11)))),
-                  const SizedBox(height:20),
-                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(10), border: Border.all(color: gold.withOpacity(0.2))), child: const Text('نتي الوسيط الوحيد - الثمن تحدديه نتي - العربون عندك - 0704246107', style: TextStyle(color: Colors.white24, fontSize:9), textAlign: TextAlign.center)),
-                ])),
+              return Scaffold(backgroundColor: blackBg, appBar: AppBar(backgroundColor: blackCard, iconTheme: const IconThemeData(color: gold), title: Text('الطلبات (${st.pending.length})', style: const TextStyle(color: gold))),
+                body: st.pending.isEmpty ? const Center(child: Text('لا يوجد', style: TextStyle(color: Colors.white24))) : ListView.builder(padding: const EdgeInsets.all(12), itemCount: st.pending.length, itemBuilder: (c,i){ final f=st.pending[i]; return Container(margin: const EdgeInsets.only(bottom:10), padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: blackCard, borderRadius: BorderRadius.circular(12), border: Border.all(color: gold.withOpacity(0.4))), child: Row(children:[Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(f['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text('${f['type']} - ${f['city']}', style: const TextStyle(color: Colors.white54, fontSize:11))])), IconButton(icon: const Icon(Icons.check_circle, color: Colors.green, size:28), onPressed: ()=> context.read<AppState>().approve(i)), IconButton(icon: const Icon(Icons.cancel, color: Colors.red, size:28), onPressed: ()=> context.read<AppState>().reject(i))])); }),
               );
             }
           }
@@ -349,10 +171,10 @@ jobs:
           ENDJSON
       - name: Get deps
         run: flutter pub get
-      - name: Build APK Final Gold
+      - name: Build Clean APK
         run: flutter build apk --release --no-tree-shake-icons
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: hafalati-gold-final-complet-apk
+          name: hafalati-clean-form-apk
           path: build/app/outputs/flutter-apk/app-release.apk
