@@ -1,4 +1,4 @@
-name: HAFALATI Auto Builder
+name: HAFALATI Secure Wasit
 on:
   push:
     branches: [ main ]
@@ -9,81 +9,217 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
 
-      - name: Create Full Project Auto
+      - name: Build Secure Project
         run: |
-          flutter create . --org com.hafalati.app --project-name hafalati --platforms android
+          flutter create . --org com.hafalati.wasit --project-name hafalati --platforms android --overwrite
           
-          cat > pubspec.yaml << 'EOF'
+          cat > pubspec.yaml << 'ENDPUB'
           name: hafalati
-          description: HAFALATI - Wedding Market
+          description: HAFALATI Secure Wasit Beni Mellal
           publish_to: 'none'
-          version: 2.26.39+80
+          version: 3.1.0+100
           environment:
             sdk: '>=3.0.0 <4.0.0'
           dependencies:
             flutter:
               sdk: flutter
+            provider: ^6.1.1
             connectivity_plus: ^5.0.2
+            url_launcher: ^6.2.4
             cupertino_icons: ^1.0.6
           flutter:
             uses-material-design: true
-          EOF
+          ENDPUB
 
-          cat > lib/main.dart << 'EOF'
+          mkdir -p lib
+          cat > lib/main.dart << 'ENDMAIN'
           import 'package:flutter/material.dart';
+          import 'package:url_launcher/url_launcher.dart';
+          import 'package:provider/provider.dart';
           import 'package:connectivity_plus/connectivity_plus.dart';
-          void main() => runApp(const HafalatiApp());
-          class HafalatiApp extends StatelessWidget {
-            const HafalatiApp({super.key});
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(debugShowCheckedModeBanner: false, title: 'HAFALATI', theme: ThemeData(primarySwatch: Colors.pink, useMaterial3: true), home: const HomeScreen());
+
+          void main() => runApp(const App());
+
+          class AppState extends ChangeNotifier {
+            List<Map<String, dynamic>> pendingFeraq = [];
+            List<Map<String, dynamic>> approvedFeraq = [
+              {'id':'1','name':'فرقة أحواش بني ملال','type':'أحواش','status':'مقبول','videos':['فيديو حفل أحواش - 2 ساعة'], 'jadwal':[{'service':'حفل كامل','prix':'2500 درهم','duree':'3 ساعات'},{'service':'دخلة عروس','prix':'800 درهم','duree':'30 دقيقة'}]},
+              {'id':'2','name':'فرقة الدقة','type':'الدقة','status':'مقبول','videos':['فيديو الدقة المراكشية'], 'jadwal':[{'service':'دقة كاملة','prix':'3000 درهم','duree':'4 ساعات'}]},
+            ];
+            void addPending(Map<String, dynamic> f){ pendingFeraq.add(f); notifyListeners(); }
+            void approve(int i){ approvedFeraq.add(pendingFeraq[i]); pendingFeraq.removeAt(i); notifyListeners(); }
+            bool containsForbidden(String text){
+              final lower = text.toLowerCase();
+              final forbidden = ['0','1','2','3','4','5','6','7','8','9','facebook','fb.com','instagram','insta','tiktok','tiktok.com','wa.me','whatsapp','@','+212','06','07','05'];
+              for(var w in forbidden){ if(lower.contains(w)) return true; }
+              if(RegExp(r'\d{4,}').hasMatch(text)) return true;
+              return false;
             }
           }
-          class HomeScreen extends StatefulWidget {
-            const HomeScreen({super.key});
-            @override
-            State<HomeScreen> createState() => _HomeScreenState();
-          }
-          class _HomeScreenState extends State<HomeScreen> {
-            bool isOnline = true;
-            @override
-            void initState() {
-              super.initState();
-              Connectivity().checkConnectivity().then((r) { setState(() => isOnline = r != ConnectivityResult.none); });
-              Connectivity().onConnectivityChanged.listen((r) { setState(() => isOnline = r != ConnectivityResult.none); });
-            }
+
+          class App extends StatelessWidget {
+            const App({super.key});
             @override
             Widget build(BuildContext context) {
-              return Scaffold(
-                appBar: AppBar(title: const Text('HAFALATI - حفلاتي'), backgroundColor: Colors.pink, foregroundColor: Colors.white, actions: [Icon(isOnline ? Icons.wifi : Icons.wifi_off), const SizedBox(width: 16)]),
-                body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(isOnline ? Icons.check_circle : Icons.cloud_off, size: 100, color: isOnline ? Colors.green : Colors.grey), const SizedBox(height: 20), Text(isOnline ? 'متصل - Wifi خدام!' : 'غير متصل', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)), const SizedBox(height: 20), const Text('سوق الأعراس\nقاعات + فرق موسيقية', textAlign: TextAlign.center, style: TextStyle(fontSize: 18)), const SizedBox(height: 30), ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15)), child: const Text('دخول السوق', style: TextStyle(color: Colors.white, fontSize: 18)))])),
+              return ChangeNotifierProvider(create: (_) => AppState(), child: MaterialApp(debugShowCheckedModeBanner: false, theme: ThemeData(primarySwatch: Colors.pink, useMaterial3: true), home: const Splash()));
+            }
+          }
+
+          class Splash extends StatefulWidget { const Splash({super.key}); @override State<Splash> createState()=> _SplashState(); }
+          class _SplashState extends State<Splash> {
+            @override void initState(){ super.initState(); Future.delayed(const Duration(seconds: 2), ()=> Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> const RoleSelect()))); }
+            @override Widget build(BuildContext context)=> Scaffold(backgroundColor: Colors.pink, body: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: const [Icon(Icons.verified_user, size: 90, color: Colors.white), SizedBox(height:12), Text('HAFALATI', style: TextStyle(fontSize:36, fontWeight: FontWeight.bold, color: Colors.white)), Text('بني ملال - وسيط آمن - 0704246107', style: TextStyle(color: Colors.white70))]))); 
+          }
+
+          class RoleSelect extends StatelessWidget {
+            const RoleSelect({super.key});
+            @override Widget build(BuildContext context){
+              return Scaffold(appBar: AppBar(title: const Text('اختار الدخول - 7 خانات + Admin'), backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                body: GridView.count(crossAxisCount: 2, padding: const EdgeInsets.all(16), crossAxisSpacing: 12, mainAxisSpacing: 12, children: [
+                  role(context, 'زبون\nClient', Icons.person, Colors.blue, const ClientHome(), 'الخانة 7 - يشوف الفرق ويحجز عبر الوسيط'),
+                  role(context, 'فرقة 1\nأحواش', Icons.groups, Colors.purple, const FerqaRegister(type:'أحواش'), 'تسجيل فرقة جديدة'),
+                  role(context, 'فرقة 2\nالدقة', Icons.music_note, Colors.orange, const FerqaRegister(type:'الدقة'), ''),
+                  role(context, 'فرقة 3\nعيساوة', Icons.self_improvement, Colors.green, const FerqaRegister(type:'عيساوة'), ''),
+                  role(context, 'فرقة 4\nأحيدوس', Icons.celebration, Colors.teal, const FerqaRegister(type:'أحيدوس'), ''),
+                  role(context, 'فرقة 5\nشعبي', Icons.mic, Colors.brown, const FerqaRegister(type:'شعبي'), ''),
+                  role(context, 'فرقة 6\nVIP', Icons.workspace_premium, Colors.amber, const FerqaRegister(type:'VIP'), ''),
+                  role(context, 'Admin\nصغير', Icons.admin_panel_settings, Colors.black87, const AdminPanel(), 'أنتي - 0704246107 - قبول الفرق'),
+                ]));
+            }
+            Widget role(BuildContext c, String t, IconData ic, Color col, Widget page, String sub){
+              return Card(elevation:4, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)), child: InkWell(borderRadius: BorderRadius.circular(15), onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> page)), child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), gradient: LinearGradient(colors: [col.withOpacity(0.7), col])), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(ic, size:40, color: Colors.white), const SizedBox(height:8), Text(t, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), if(sub.isNotEmpty) Padding(padding: const EdgeInsets.all(4), child: Text(sub, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 9)))]))));
+            }
+          }
+
+          class FerqaRegister extends StatefulWidget {
+            final String type;
+            const FerqaRegister({super.key, required this.type});
+            @override State<FerqaRegister> createState()=> _FerqaRegisterState();
+          }
+          class _FerqaRegisterState extends State<FerqaRegister> {
+            final nameCtrl = TextEditingController();
+            final serviceCtrl = TextEditingController();
+            final videoCtrl = TextEditingController();
+            @override Widget build(BuildContext context){
+              final state = context.read<AppState>();
+              return Scaffold(appBar: AppBar(title: Text('تسجيل فرقة ${widget.type}'), backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.red[50], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.red)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [
+                    Text('⚠️ قانون الوسيط - ممنوع:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+                    Text('- ممنوع كتابة رقم الهاتف\n- ممنوع فيسبوك / انستا / تيكتوك\n- ممنوع أي رابط تواصل\nمسموح فقط: فيديوهات + جدول الخدمة\nالتواصل الوحيد عبر الوسيط 0704246107', style: TextStyle(fontSize:13)),
+                  ])),
+                  const SizedBox(height:16),
+                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'اسم الفرقة', border: OutlineInputBorder())),
+                  const SizedBox(height:12),
+                  TextField(controller: serviceCtrl, maxLines:3, decoration: const InputDecoration(labelText: 'جدول الخدمة - مثلا: حفل كامل 2500 درهم - 3 ساعات', border: OutlineInputBorder(), helperText: 'ممنوع الأرقام الشخصية - فقط وصف الخدمة والثمن')),
+                  const SizedBox(height:12),
+                  TextField(controller: videoCtrl, decoration: const InputDecoration(labelText: 'رابط أو عنوان الفيديو - مثلا: فيديو حفل بني ملال', border: OutlineInputBorder(), helperText: 'فيديو فقط - بدون نمرة')),
+                  const SizedBox(height:20),
+                  SizedBox(width: double.infinity, height:50, child: ElevatedButton(onPressed: (){
+                    final allText = nameCtrl.text + serviceCtrl.text + videoCtrl.text;
+                    if(state.containsForbidden(allText)){
+                      showDialog(context: context, builder: (_)=> AlertDialog(title: const Text('⛔ ممنوع!'), content: const Text('كتبتي رقم أو فيسبوك أو انستا أو تيكتوك!\n\nمسموح غير:\n✅ فيديوهات\n✅ جدول الخدمة (نوع الخدمة + ثمن الخدمة)\n\nممنوع:\n❌ رقم الهاتف\n❌ فيسبوك / انستا / تيكتوك\n❌ أي وسيلة تواصل\n\nالتواصل الوحيد عبر الوسيط 0704246107'), actions: [TextButton(onPressed: ()=> Navigator.pop(context), child: const Text('فهمت - غادي نصلح'))]));
+                      return;
+                    }
+                    if(nameCtrl.text.isEmpty || serviceCtrl.text.isEmpty){ ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('عمر كلشي'))); return; }
+                    state.addPending({'id':DateTime.now().millisecondsSinceEpoch.toString(),'name':nameCtrl.text,'type':widget.type,'status':'قيد الانتظار','videos':[videoCtrl.text],'jadwal':[{'service':serviceCtrl.text,'prix':'حسب الاتفاق','duree':'حسب الطلب'}]});
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم التسجيل - في انتظار قبول الوسيط 0704246107'), backgroundColor: Colors.green));
+                    Navigator.pop(context);
+                  }, style: ElevatedButton.styleFrom(backgroundColor: Colors.pink, foregroundColor: Colors.white), child: const Text('تسجيل الفرقة - في انتظار موافقة الوسيط'))),
+                ])),
               );
             }
           }
-          EOF
 
-      - name: Get dependencies
+          class ClientHome extends StatelessWidget {
+            const ClientHome({super.key});
+            Future<void> book(BuildContext context, Map<String, dynamic> f) async {
+              const num = '212704246107';
+              final msg = Uri.encodeComponent('السلام 0704246107 - بغيت نحجز ${f['name']} - ${f['type']} - بني ملال - ممكن تكمل معايا؟');
+              final url = Uri.parse('https://wa.me/$num?text=$msg');
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+            }
+            @override Widget build(BuildContext context){
+              final approved = context.watch<AppState>().approvedFeraq;
+              return Scaffold(appBar: AppBar(title: const Text('فرق بني ملال - فيديوهات + جدول فقط'), backgroundColor: Colors.pink, foregroundColor: Colors.white, actions: [Center(child: Padding(padding: const EdgeInsets.only(right:12), child: Text('${approved.length} فرقة مقبولة', style: const TextStyle(fontSize:12))))]),
+                body: Column(children: [
+                  Container(width: double.infinity, color: Colors.green[50], padding: const EdgeInsets.all(8), child: const Text('✅ كل فرقة مقبولة - عندها الحق غير فيديوهات + جدول - التواصل ممنوع إلا عبر الوسيط 0704246107', textAlign: TextAlign.center, style: TextStyle(fontSize:11, color: Colors.green, fontWeight: FontWeight.bold))),
+                  Expanded(child: ListView.builder(padding: const EdgeInsets.all(12), itemCount: approved.length, itemBuilder: (c,i){
+                    final f = approved[i];
+                    return Card(margin: const EdgeInsets.only(bottom:12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), child: ListTile(leading: CircleAvatar(backgroundColor: Colors.pink[100], child: const Icon(Icons.play_circle, color: Colors.pink)), title: Text(f['name'], style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${f['type']} - ${f['videos'].length} فيديو - ${f['jadwal'].length} خدمة'), const SizedBox(height:4), Text('الجدول: ${f['jadwal'][0]['service']}', style: const TextStyle(fontSize:11, color: Colors.grey))]), trailing: const Icon(Icons.arrow_forward_ios, size:16), onTap: ()=> Navigator.push(c, MaterialPageRoute(builder: (_)=> FerqaView(ferqa:f, onBook: ()=> book(c,f))))));
+                  })),
+                ]),
+                bottomNavigationBar: Container(padding: const EdgeInsets.all(10), color: Colors.white, child: const Text('للإستفسار المرجو التواصل عبر الرقم 0704246107 - أنتي الوسيط الوحيد', textAlign: TextAlign.center, style: TextStyle(fontSize:12, fontWeight: FontWeight.bold))),
+              );
+            }
+          }
+
+          class FerqaView extends StatelessWidget {
+            final Map<String, dynamic> ferqa;
+            final VoidCallback onBook;
+            const FerqaView({super.key, required this.ferqa, required this.onBook});
+            @override Widget build(BuildContext context){
+              return Scaffold(appBar: AppBar(title: Text(ferqa['name']), backgroundColor: Colors.pink, foregroundColor: Colors.white),
+                body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(8)), child: Row(children: const [Icon(Icons.block, color: Colors.red, size:18), SizedBox(width:6), Expanded(child: Text('هاد الفرقة ممنوع عليها تحط نمرتها أو فيسبوك أو انستا - كتشوف غير الفيديو والجدول', style: TextStyle(fontSize:12)))])),
+                  const SizedBox(height:16),
+                  const Text('📹 فيديوهات الفرقة (مسموح):', style: TextStyle(fontWeight: FontWeight.bold, fontSize:16)),
+                  const SizedBox(height:8),
+                  ...List.generate(ferqa['videos'].length, (i)=> Card(child: ListTile(leading: const Icon(Icons.video_library, color: Colors.red), title: Text(ferqa['videos'][i]), subtitle: const Text('فيديو حفل - بدون رقم')))),
+                  const SizedBox(height:16),
+                  const Text('📋 جدول الخدمة (مسموح):', style: TextStyle(fontWeight: FontWeight.bold, fontSize:16)),
+                  const SizedBox(height:8),
+                  Card(child: Column(children: List.generate(ferqa['jadwal'].length, (i){ final j = ferqa['jadwal'][i]; return ListTile(leading: const Icon(Icons.table_chart), title: Text(j['service']), subtitle: Text('المدة: ${j['duree']}'), trailing: Text(j['prix'], style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold))); }))),
+                  const SizedBox(height:24),
+                  SizedBox(width: double.infinity, height:55, child: ElevatedButton.icon(onPressed: onBook, icon: const Icon(Icons.chat, size:28), label: const Text('احجز عبر الوسيط - 0704246107', style: TextStyle(fontWeight: FontWeight.bold)), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white))),
+                  const SizedBox(height:12),
+                  const Center(child: Text('ممنوع التواصل المباشر مع الفرقة\nكل الحجوزات عبر الوسيط الرسمي', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize:12))),
+                ])),
+              );
+            }
+          }
+
+          class AdminPanel extends StatelessWidget {
+            const AdminPanel({super.key});
+            @override Widget build(BuildContext context){
+              final state = context.watch<AppState>();
+              return Scaffold(appBar: AppBar(title: const Text('Admin - أنتي - 0704246107'), backgroundColor: Colors.black87, foregroundColor: Colors.white),
+                body: SingleChildScrollView(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('فرق في الانتظار (${state.pendingFeraq.length}) - خاصك تقبليهم', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height:8),
+                  ...List.generate(state.pendingFeraq.length, (i){ final f = state.pendingFeraq[i]; return Card(color: Colors.orange[50], child: ListTile(title: Text(f['name']), subtitle: Text('${f['type']} - ${f['videos'][0]}'), trailing: Row(mainAxisSize: MainAxisSize.min, children: [IconButton(icon: const Icon(Icons.check, color: Colors.green), onPressed: ()=> context.read<AppState>().approve(i)), IconButton(icon: const Icon(Icons.close, color: Colors.red), onPressed: (){})]))); }),
+                  const Divider(height:30),
+                  Text('فرق مقبولة (${state.approvedFeraq.length})', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ...List.generate(state.approvedFeraq.length, (i){ final f = state.approvedFeraq[i]; return Card(child: ListTile(title: Text(f['name']), subtitle: Text('عندها الحق: ${f['videos'].length} فيديو + ${f['jadwal'].length} جدول - بدون نمرة'), leading: const Icon(Icons.verified, color: Colors.green))); }),
+                  const SizedBox(height:20),
+                  Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.green[50], borderRadius: BorderRadius.circular(10)), child: const Text('✅ ميزة التعديلات المستقبلية: من هنا تقدري من بعد تزيدي أقسام جديدة - تزيدي مدن أخرى من غير بني ملال - تزيدي ميزة الدفع - كلشي قابل للتوسع ملي تتشهري', style: TextStyle(fontSize:12))),
+                ])),
+              );
+            }
+          }
+          ENDMAIN
+
+          cat > android/app/google-services.json << 'ENDJSON'
+          {"project_info":{"project_number":"1","project_id":"dummy"},"client":[{"client_info":{"mobilesdk_app_id":"1:1:android:dummy","android_client_info":{"package_name":"com.hafalati.wasit"}},"api_key":[{"current_key":"dummy"}]}]}
+          ENDJSON
+
+      - name: Get deps
         run: flutter pub get
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APK Secure
+        run: flutter build apk --release --no-tree-shake-icons
 
-      - name: Upload APK
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: hafalati-apk
+          name: hafalati-secure-wasit-apk
           path: build/app/outputs/flutter-apk/app-release.apk
