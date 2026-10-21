@@ -16,10 +16,15 @@ jobs:
         with:
           flutter-version: 3.22.0
           channel: stable
-      - name: Fix pubspec
+          cache: true
+
+      - name: Restore main.dart
         run: |
-          cat > pubspec.yaml << 'EOF'
-          name: hafalati
+          cp lib/main.dart /tmp/main.dart || echo "no main"
+          if [ ! -d "android" ]; then flutter create .; fi
+          mkdir -p lib
+          cp /tmp/main.dart lib/main.dart
+          echo "name: hafalati
           description: HAFALATI
           publish_to: none
           version: 10.0.0+100
@@ -34,13 +39,14 @@ jobs:
             image_picker: ^1.0.7
             cupertino_icons: ^1.0.6
           flutter:
-            uses-material-design: true
-          EOF
-      - name: Get deps
-        run: flutter pub get
-      - name: Build APK
-        run: flutter build apk --release
-      - name: Upload
+            uses-material-design: true" > pubspec.yaml
+
+      - name: Build
+        run: |
+          flutter pub get
+          flutter build apk --release -v
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: HAFALATI-FIXED
