@@ -13,18 +13,12 @@ jobs:
         with:
           flutter-version: '3.24.0'
           channel: stable
-
-      - name: Rebuild Android folder (fix AndroidX)
-        run: |
+      - run: |
           rm -rf android
           flutter create . --platforms=android --project-name hafalati
           flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+          flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
           name: HAFALATI-APK
           path: build/app/outputs/flutter-apk/app-release.apk
